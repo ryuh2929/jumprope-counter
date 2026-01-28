@@ -15,7 +15,8 @@ pose = mp_pose.Pose(
 
 print("pose 설정")
 
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("test.mp4")
 
 print("cap 설정")
 
