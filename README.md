@@ -6,11 +6,18 @@
 
 간단한 MediaPipe 포즈 감지 및 관절 그리기 데모입니다.
 
-### Python 버전
+# 버전 정보
 Python 3.9.13
+mediapipe 0.10.9
+opencv-python 4.13.0.90
 
-요구사항 설치:
+## 요구사항 설치:
 
 ```bash
 pip install -r requirements.txt
+```
+
+# 실행
+```bash
+python3 countjump.py
 ```
