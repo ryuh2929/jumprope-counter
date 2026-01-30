@@ -4,6 +4,7 @@ import time
 from src.calibrator import Calibrator
 from src.jump_counter import JumpCounter
 from src.visualizer import Visualizer
+from src.logger import Logger
 
 def main():
     # MediaPipe 초기화
@@ -30,7 +31,12 @@ def main():
     counter = JumpCounter()
     # 시각화
     visualizer = Visualizer()
+    # 기록
+    logger = Logger()
     
+    #start_time 초기화
+    start_time = None
+
     # 메인 루프
     while cap.isOpened():
         ret, frame = cap.read()
@@ -47,6 +53,7 @@ def main():
             
             # 캘리브레이션 단계
             if not calibrator.is_complete:
+                print("11")
                 calibrator.add_frame(landmarks)
                 progress = calibrator.get_progress()
                 visualizer.draw_calibration_status(
@@ -55,11 +62,26 @@ def main():
                     len(calibrator.frames), 
                     calibrator.num_frames
                 )
-            
+                print("22")
+
             # 캘리브레이션 완료 후 점프 카운팅 단계
             else:
+                print("33")
+                # 세션 시작 (첫 점프 전)
+                if start_time is None:
+                    print("start_time is None 조건문 진입")
+                    logger.start_session()
+                    start_time = time.time()
+                    print("조건문 완료")
+
                 # 점프 감지
                 jumped = counter.update(landmarks, calibrator.baseline_threshold_y)
+                print("점프 감지 완료")
+
+                # 점프 발생 시 기록
+                if jumped:
+                    elapsed = time.time() - start_time
+                    logger.log_jump(counter.count, elapsed)
                 
                 # 시각화
                 visualizer.draw_threshold_line(frame, calibrator.baseline_threshold_y)
@@ -79,6 +101,11 @@ def main():
         if cv2.waitKey(1) & 0xFF == 27:
             break
     
+    # 종료 시
+    if start_time is not None:
+        duration = time.time() - start_time
+        logger.end_session(duration)
+        
     # 정리
     cap.release()
     cv2.destroyAllWindows()
